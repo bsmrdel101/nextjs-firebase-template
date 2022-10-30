@@ -1,25 +1,28 @@
-import { URL } from 'src/scripts/firebase';
-import { doc, setDoc } from "firebase/firestore";
-import { getFirestore } from 'firebase/firestore'
-import axios from 'axios';
+import { getDocs, addDoc, collection, query, where } from 'firebase/firestore';
+import { db } from '../scripts/firebase';
 
-const db = getFirestore();
+const dbInstance = collection(db, 'users');
 
-export const getUsers = async () => {
-  try {
-    const res = await axios.get(`${URL}/users/user-data`);
-    console.log(res.data.fields.username.stringValue);
-  } catch (error) {
-    console.log(error);
-  }
+export const addUser = (value) => {
+  addDoc(dbInstance, {
+    username: value
+  });
 };
 
-export const updateUsername = async (newName) => {
-  try {
-    await setDoc(doc(db, 'users', 'user-data'), {
-      username: newName
-    });
-  } catch (error) {
-    console.log(error);
-  }
+export const getUsers = async () => {
+  const q = query(
+    collection(db, "users"),
+    where("username", "==", 'Bean')
+  );
+  const querySnapshot = await getDocs(q);
+  querySnapshot.forEach((doc) => {
+    console.log(doc.data());
+  });
+};
+
+export const editUser = (id, value) => {
+  const collectionById = doc(db, 'users', id)
+  updateDoc(collectionById, {
+      username: value
+  });
 };
